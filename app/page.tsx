@@ -1,113 +1,175 @@
-import Image from "next/image";
+"use client"
+import React, { useEffect, useState } from "react"
+import Pdf from "./pdf"
+import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
+
+const PDFViewer = dynamic(
+  () => import("@react-pdf/renderer").then((mod) => mod.PDFViewer),
+  {
+    ssr: false,
+    loading: () => <p>Loading...</p>,
+  }
+)
+
+const options = {
+  method: "GET",
+  headers: {
+    "xc-token": "0xyrd4IJRP3xkQwcdfDnztNvIG4j2km97DRd8g8q",
+  },
+}
+
+import { PDFDownloadLink, pdf } from "@react-pdf/renderer"
+import { setConfig } from "next/config"
 
 export default function Home() {
+  const searchParams = useSearchParams()
+  const id = searchParams.get("id")
+  const [commitmentDetails, setCommitmentDetails] = useState()
+
+  const downloadPDF = async () => {
+    const blob = await pdf(
+      <Pdf
+        borrowers={commitmentDetails?.Borrowers}
+        guarantors={commitmentDetails?.Guarantors}
+        principalAmount={commitmentDetails?.Principal}
+        term={commitmentDetails?.Term}
+        ir={commitmentDetails?.IR}
+        ppr={commitmentDetails?.Prime_Plus_Rate}
+        ptir={commitmentDetails?.Extension_IR}
+        ptppr={commitmentDetails?.Extension_Prime_Plus_Rate}
+        date={commitmentDetails?.Date}
+        closingDate={commitmentDetails?.Closing_Date}
+        offerEndDate={commitmentDetails?.Offer_End_Date}
+        mortgageAssignment={commitmentDetails?.Mortgage_Assignment}
+        costDetails={commitmentDetails?.Cost_Details}
+        securityDetails={commitmentDetails?.Security_Details}
+        retainer={commitmentDetails?.Retainer}
+        conditions={commitmentDetails?.Conditions}
+      />
+    ).toBlob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = commitmentDetails?.AFM_ID + "_Commitment" // your custom filename
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function fetchData(rowId) {
+    const data2 = await fetch(
+      "https://app.nocodb.com/api/v2/tables/mgqwdeyg672qxnx/records/" + id,
+      options
+    )
+    const linkedData = await data2.json()
+    let brokers = []
+    let borrowers = []
+    let guarantors = []
+    let costDetails = []
+    let securityDetails = []
+    let conditions = []
+    if (linkedData._nc_m2m_Deals_Brokers) {
+      for (let i = 0; i < linkedData._nc_m2m_Deals_Brokers.length; i++) {
+        brokers.push(linkedData._nc_m2m_Deals_Brokers[i].Brokers.Name)
+      }
+    }
+    if (linkedData._nc_m2m_Deals_Borrowers) {
+      for (let i = 0; i < linkedData._nc_m2m_Deals_Borrowers.length; i++) {
+        borrowers.push(linkedData._nc_m2m_Deals_Borrowers[i].Borrowers.Name)
+      }
+    }
+    if (linkedData._nc_m2m_Deals_Guarantors) {
+      for (let i = 0; i < linkedData._nc_m2m_Deals_Guarantors.length; i++) {
+        guarantors.push(linkedData._nc_m2m_Deals_Guarantors[i].Guarantors.Name)
+      }
+    }
+    if (linkedData._nc_m2m_Deals_Cost_Details) {
+      for (let i = 0; i < linkedData._nc_m2m_Deals_Cost_Details.length; i++) {
+        costDetails.push({
+          label:
+            linkedData._nc_m2m_Deals_Cost_Details[i].Cost_Details.Cost_Detail,
+          value:
+            linkedData._nc_m2m_Deals_Cost_Details[i].Cost_Details.Cost_Value,
+        })
+      }
+    }
+    if (linkedData._nc_m2m_Deals_Security_Details) {
+      for (
+        let i = 0;
+        i < linkedData._nc_m2m_Deals_Security_Details.length;
+        i++
+      ) {
+        securityDetails.push(
+          linkedData._nc_m2m_Deals_Security_Details[i].Security_Details.Name
+        )
+      }
+    }
+    if (linkedData._nc_m2m_Deals_Conditions) {
+      for (let i = 0; i < linkedData._nc_m2m_Deals_Conditions.length; i++) {
+        conditions.push({
+          label: linkedData._nc_m2m_Deals_Conditions[i].Conditions.Conditions,
+          value: linkedData._nc_m2m_Deals_Conditions[i].Conditions.Conditions,
+        })
+      }
+    }
+
+    console.log(linkedData)
+
+    const data = await fetch(
+      "https://app.nocodb.com/api/v2/tables/mgqwdeyg672qxnx/records?offset=0&limit=25&where=&viewId=vw88qhkz4pg1k99v",
+      options
+    )
+    const tableData = await data.json()
+    for (let i = 0; i < tableData.list?.length; i++) {
+      if (tableData.list[i].Id == rowId) {
+        console.log(tableData.list[i])
+        setCommitmentDetails(tableData.list[i])
+        setCommitmentDetails((prev) => ({
+          ...prev,
+          Brokers: brokers,
+          Borrowers: borrowers,
+          Guarantors: guarantors,
+          Cost_Details: costDetails,
+          Security_Details: securityDetails,
+          Conditions: conditions,
+        }))
+      }
+    }
+  }
+
+  //https://app.nocodb.com/api/v2/tables/mgqwdeyg672qxnx/records?offset=0&limit=25&viewId=vw88qhkz4pg1k99v&expand=Borrowers
+
+  useEffect(() => {
+    fetchData(id)
+    //CONCAT("https://localhost:3000?id=", {Id})
+  }, [])
+
+  useEffect(() => {
+    console.log(commitmentDetails)
+  })
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+    <div>
+      <PDFViewer className="w-full h-screen">
+        <Pdf
+          borrowers={commitmentDetails?.Borrowers}
+          guarantors={commitmentDetails?.Guarantors}
+          principalAmount={commitmentDetails?.Principal}
+          term={commitmentDetails?.Term}
+          ir={commitmentDetails?.IR}
+          ppr={commitmentDetails?.Prime_Plus_Rate}
+          ptir={commitmentDetails?.Extension_IR}
+          ptppr={commitmentDetails?.Extension_Prime_Plus_Rate}
+          date={commitmentDetails?.Date}
+          closingDate={commitmentDetails?.Closing_Date}
+          offerEndDate={commitmentDetails?.Offer_End_Date}
+          mortgageAssignment={commitmentDetails?.Mortgage_Assignment}
+          costDetails={commitmentDetails?.Cost_Details}
+          securityDetails={commitmentDetails?.Security_Details}
+          retainer={commitmentDetails?.Retainer}
+          conditions={commitmentDetails?.Conditions}
         />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+      </PDFViewer>
+      <button onClick={downloadPDF}>Download PDF</button>
+    </div>
+  )
 }
