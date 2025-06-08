@@ -14,7 +14,7 @@ type CommitmentDetails = {
   Assignment: string
   Cost_Details: { label: string; value: number }[]
   Security_Details: string[]
-  Retainer: string
+  Retainer: number
   Conditions: { label: string; value: string }[]
   AFM_ID: string
 }
