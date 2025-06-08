@@ -1,4 +1,24 @@
 "use client"
+type CommitmentDetails = {
+  Borrowers: string[]
+  Guarantors: string[]
+  Principal: number
+  Term: string
+  IR: number
+  Prime_Plus_Rate: number
+  Extension_IR: number
+  Extension_Prime_Plus_Rate: number
+  Date: string
+  Closing_Date: string
+  Offer_End_Date: string
+  Assignment: string
+  Cost_Details: { label: string; value: number }[]
+  Security_Details: string[]
+  Retainer: string
+  Conditions: { label: string; value: string }[]
+  AFM_ID: string
+}
+
 import React, { useEffect, useState } from "react"
 import Pdf from "./pdf"
 import dynamic from "next/dynamic"
@@ -25,7 +45,7 @@ import { setConfig } from "next/config"
 export default function Home() {
   const searchParams = useSearchParams()
   const id = searchParams.get("id")
-  const [commitmentDetails, setCommitmentDetails] = useState()
+  const [commitmentDetails, setCommitmentDetails] = useState<CommitmentDetails>()
 
 
   async function fetchData(rowId) {
