@@ -3,7 +3,7 @@ type CommitmentDetails = {
   Borrowers: string[]
   Guarantors: string[]
   Principal: number
-  Term: string
+  Term: number
   IR: number
   Prime_Plus_Rate: number
   Extension_IR: number
