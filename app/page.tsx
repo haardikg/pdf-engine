@@ -170,7 +170,7 @@ export default function Home() {
           costDetails={commitmentDetails.Cost_Details}
           securityDetails={commitmentDetails.Security_Details}
           retainer={commitmentDetails.Retainer}
-          conditions={commitmentDetailsr.Conditions}
+          conditions={commitmentDetails.Conditions}
         />
       </PDFViewer>
     </div>
