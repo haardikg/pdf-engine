@@ -147,7 +147,10 @@ export default function Home() {
   useEffect(() => {
     console.log(commitmentDetails)
   }, [commitmentDetails])
-  
+
+  if (!commitmentDetails) {
+    return <div>Loading commitment details...</div>
+  } else {
   return (
     <div>
       <PDFViewer className="w-full h-screen">
@@ -173,4 +176,5 @@ export default function Home() {
       <button onClick={downloadPDF}>Download PDF</button>
     </div>
   )
+  }
 }
