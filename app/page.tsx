@@ -15,7 +15,7 @@ const PDFViewer = dynamic(
 const options = {
   method: "GET",
   headers: {
-    "xc-token": "0xyrd4IJRP3xkQwcdfDnztNvIG4j2km97DRd8g8q",
+    "xc-token": process.env.NEXT_PUBLIC_XC_TOKEN,
   },
 }
 
