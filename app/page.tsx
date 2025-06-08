@@ -155,22 +155,22 @@ export default function Home() {
     <div>
       <PDFViewer className="w-full h-screen">
         <Pdf
-          borrowers={commitmentDetails?.Borrowers}
-          guarantors={commitmentDetails?.Guarantors}
-          principalAmount={commitmentDetails?.Principal}
-          term={commitmentDetails?.Term}
-          ir={commitmentDetails?.IR}
-          ppr={commitmentDetails?.Prime_Plus_Rate}
-          ptir={commitmentDetails?.Extension_IR}
-          ptppr={commitmentDetails?.Extension_Prime_Plus_Rate}
-          date={commitmentDetails?.Date}
-          closingDate={commitmentDetails?.Closing_Date}
-          offerEndDate={commitmentDetails?.Offer_End_Date}
-          mortgageAssignment={commitmentDetails?.Assignment}
-          costDetails={commitmentDetails?.Cost_Details}
-          securityDetails={commitmentDetails?.Security_Details}
-          retainer={commitmentDetails?.Retainer}
-          conditions={commitmentDetails?.Conditions}
+          borrowers={commitmentDetails.Borrowers}
+          guarantors={commitmentDetails.Guarantors}
+          principalAmount={commitmentDetails.Principal}
+          term={commitmentDetails.Term}
+          ir={commitmentDetails.IR}
+          ppr={commitmentDetails.Prime_Plus_Rate}
+          ptir={commitmentDetails.Extension_IR}
+          ptppr={commitmentDetails.Extension_Prime_Plus_Rate}
+          date={commitmentDetails.Date}
+          closingDate={commitmentDetails.Closing_Date}
+          offerEndDate={commitmentDetails.Offer_End_Date}
+          mortgageAssignment={commitmentDetails.Assignment}
+          costDetails={commitmentDetails.Cost_Details}
+          securityDetails={commitmentDetails.Security_Details}
+          retainer={commitmentDetails.Retainer}
+          conditions={commitmentDetailsr.Conditions}
         />
       </PDFViewer>
     </div>
