@@ -173,7 +173,6 @@ export default function Home() {
           conditions={commitmentDetails?.Conditions}
         />
       </PDFViewer>
-      <button onClick={downloadPDF}>Download PDF</button>
     </div>
   )
   }
