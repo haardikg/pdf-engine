@@ -58,10 +58,11 @@ export default function Home() {
 
   async function fetchData(rowId) {
     const data2 = await fetch(
-      "https://app.nocodb.com/api/v2/tables/mgqwdeyg672qxnx/records/" + id,
+      "https://app.nocodb.com/api/v2/tables/m3yik9slvqdbzhl/records/" + id,
       options
     )
     const linkedData = await data2.json()
+    console.log(linkedData)
     let brokers = []
     let borrowers = []
     let guarantors = []
@@ -107,8 +108,8 @@ export default function Home() {
     if (linkedData._nc_m2m_Deals_Conditions) {
       for (let i = 0; i < linkedData._nc_m2m_Deals_Conditions.length; i++) {
         conditions.push({
-          label: linkedData._nc_m2m_Deals_Conditions[i].Conditions.Conditions,
-          value: linkedData._nc_m2m_Deals_Conditions[i].Conditions.Conditions,
+          label: linkedData._nc_m2m_Deals_Conditions[i].Conditions.Condition,
+          value: linkedData._nc_m2m_Deals_Conditions[i].Conditions.Condition,
         })
       }
     }
@@ -116,23 +117,22 @@ export default function Home() {
     console.log(linkedData)
 
     const data = await fetch(
-      "https://app.nocodb.com/api/v2/tables/mgqwdeyg672qxnx/records?offset=0&limit=25&where=&viewId=vw88qhkz4pg1k99v",
+      "https://app.nocodb.com/api/v2/tables/m3yik9slvqdbzhl/records?offset=0&limit=25&where=&viewId=vwwskg3o1wkoyo4l",
       options
     )
     const tableData = await data.json()
     for (let i = 0; i < tableData.list?.length; i++) {
-      if (tableData.list[i].Id == rowId) {
+      if (tableData.list[i].id == rowId) {
         console.log(tableData.list[i])
-        setCommitmentDetails(tableData.list[i])
-        setCommitmentDetails((prev) => ({
-          ...prev,
+        setCommitmentDetails({
+          ...tableData.list[i],
           Brokers: brokers,
           Borrowers: borrowers,
           Guarantors: guarantors,
           Cost_Details: costDetails,
           Security_Details: securityDetails,
           Conditions: conditions,
-        }))
+        })
       }
     }
   }
@@ -146,7 +146,8 @@ export default function Home() {
 
   useEffect(() => {
     console.log(commitmentDetails)
-  })
+  }, [commitmentDetails])
+  
   return (
     <div>
       <PDFViewer className="w-full h-screen">
@@ -162,7 +163,7 @@ export default function Home() {
           date={commitmentDetails?.Date}
           closingDate={commitmentDetails?.Closing_Date}
           offerEndDate={commitmentDetails?.Offer_End_Date}
-          mortgageAssignment={commitmentDetails?.Mortgage_Assignment}
+          mortgageAssignment={commitmentDetails?.Assignment}
           costDetails={commitmentDetails?.Cost_Details}
           securityDetails={commitmentDetails?.Security_Details}
           retainer={commitmentDetails?.Retainer}
