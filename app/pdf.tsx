@@ -125,6 +125,8 @@ function Pdf({
     return formattedNumber
   }
 
+
+
   function findMonthlyPayment() {
     return handleNumber(
       ((principalAmount * (ir / 100)) / (12)).toFixed(2)
@@ -177,7 +179,7 @@ function Pdf({
               <Text style={tw("ml-9")}>
                 (Hereinafter referred to as the “Lender(s)” and/or “Chargee(s)”)
               </Text>
-              <Text>To: {borrowers.join(", ")}</Text>
+              <Text>To: {borrowers.join(", ")} </Text>
               <Text style={tw("ml-9")}>
                 (Hereinafter referred to as the “Borrower(s)” and/or
                 “Chargor(s)”)
