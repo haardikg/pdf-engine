@@ -91,7 +91,7 @@ interface props {
   conditions: string
   costDetails: Cost[]
 }
-
+//
 const defaultProps = {
   date: "May 11 2024",
   borrowers: ["N/A"],
