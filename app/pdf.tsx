@@ -12,6 +12,15 @@ import {
 import { createTw } from "react-pdf-tailwind"
 import config from "@/tailwind.config"
 import logo from "./logo-header.png"
+Font.register({
+  family: "Times New Roman",
+  src: "/fonts/times.ttf",
+})
+Font.register({
+  family: "Times New Roman Semi Bold",
+  src: "/fonts/timessb.ttf",
+})
+
 
 const tw = createTw(config)
 const styles = StyleSheet.create({
@@ -24,6 +33,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: "11px",
+    fontFamily: "Times New Roman",
     height: "auto",
     paddingTop: "15px",
     lineHeight: "1.25px",
@@ -31,6 +41,7 @@ const styles = StyleSheet.create({
   pageNumber: {
     position: "absolute",
     fontSize: 11,
+    fontFamily: "Times New Roman",
     bottom: 30,
     left: 0,
     right: 0,
@@ -39,13 +50,23 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
   },
+  conditionRow: {
+      display: "flex",
+      flexDirection: "row",
+      marginBottom: 4,
+  },
+  conditionNumber: {
+      fontSize: 11,
+      fontWeight: "bold",
+      fontFamily: "Times New Roman Semi Bold",
+      width: 20,
+      marginTop: 3
+   },
+  conditionText: {
+      fontSize: 11,
+      flex: 1,
+  },
 })
-
-interface Condition {
-  label: string
-  value: string
-  __isNew__?: boolean
-}
 
 interface Cost {
   label: string
@@ -67,7 +88,7 @@ interface props {
   securityDetails: string[]
   offerEndDate: string
   retainer: number
-  conditions: Condition[]
+  conditions: string
   costDetails: Cost[]
 }
 
@@ -86,7 +107,7 @@ const defaultProps = {
   securityDetails: ["124 Example St, L6P 2F9 ON"],
   offerEndDate: "May 12 2024",
   retainer: 0,
-  conditions: [{ label: "Nothing", value: "nothing" }],
+  conditions: "conditions",
   costDetails: [{ label: "Nothing", value: 0 }],
 }
 
@@ -368,13 +389,31 @@ function Pdf({
         </View>
         {/*Start of Third Page*/}
         <View style={styles.text} break>
-          <View style={tw("flex-auto py-10 px-20 flex-col")}>
-            {conditions.map((condition) => (
-              <View key={condition.value} style={tw("flex-auto flex-row px-4")}>
-                <Text style={tw("mr-4")}>{handleConditionIndex()}.</Text>
-                <Text>{condition.label}</Text>
-              </View>
-            ))}
+          <View style={tw("flex-auto py-10 px-20 flex-col")}> 
+          {(() => {
+  const lines = []
+  let remaining = conditions
+  while (remaining.length > 0) {
+    const number = remaining.slice(0, 3)
+    const nextIndex = remaining.indexOf("\n", 3)
+    const text =
+      nextIndex !== -1
+        ? remaining.slice(3, nextIndex)
+        : remaining.slice(3)
+
+    lines.push(
+      <View key={lines.length} style={styles.conditionRow}>
+        <Text style={styles.conditionNumber}>{number}</Text>
+        <Text style={styles.conditionText}>{text.trim()}</Text>
+      </View>
+    )
+
+    if (nextIndex === -1) break
+    remaining = remaining.slice(nextIndex + 1)
+  }
+  return lines
+})()}
+
           </View>
         </View>
         {/*Start of Fourth Page*/}

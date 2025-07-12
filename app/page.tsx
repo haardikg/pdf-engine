@@ -1,5 +1,4 @@
 "use client"
-
 type CommitmentDetails = {
   Borrowers: string[]
   Guarantors: string[]
@@ -16,7 +15,7 @@ type CommitmentDetails = {
   Cost_Details: { label: string; value: number }[]
   Security_Details: string[]
   Retainer: number
-  Conditions: { label: string; value: string }[]
+  Conditions: string
   AFM_ID: string
 }
 
@@ -51,7 +50,6 @@ export default function Home() {
   const linkMap = {
     Borrowers: "cjlkbox4nz3u42p",
     Guarantors: "cauf2ej8t32wjy4",
-    Conditions: "cblqfld1hqliw6i",
     Cost_Details: "c1dzgydnu1svs0b",
     Security_Details: "c10bp1rk45xh0l8"
   }
@@ -79,10 +77,9 @@ export default function Home() {
 
     const deal = await fetch(`${baseUrl}/tables/${tableId}/records/${recordId}`, options).then(res => res.json())
 
-    const [borrowers, guarantors, conditions, costDetailLabels, costValues, securityDetails] = await Promise.all([
+    const [borrowers, guarantors, costDetailLabels, costValues, securityDetails] = await Promise.all([
       fetchLinkField(linkMap.Borrowers, recordId),
       fetchLinkField(linkMap.Guarantors, recordId),
-      fetchLinkField(linkMap.Conditions, recordId),
       fetchLinkField(linkMap.Cost_Details, recordId),
       fetchCostValues(recordId),
       fetchLinkField(linkMap.Security_Details, recordId),
@@ -109,10 +106,7 @@ export default function Home() {
       Cost_Details: costDetails,
       Security_Details: securityDetails.map((s: any) => s.Name),
       Retainer: deal.Retainer,
-      Conditions: conditions.map((c: any) => ({
-        label: c.Condition,
-        value: c.Condition,
-      })),
+      Conditions: deal.Conditions || "",
       AFM_ID: deal.AFM_ID,
     })
   }
