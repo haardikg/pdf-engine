@@ -14,11 +14,11 @@ import config from "@/tailwind.config"
 import logo from "./logo-header.png"
 Font.register({
   family: "Times New Roman",
-  src: "/fonts/times.ttf",
+  src: "/times.ttf",
 })
 Font.register({
   family: "Times New Roman Semi Bold",
-  src: "/fonts/timessb.ttf",
+  src: "/timessb.ttf",
 })
 
 
