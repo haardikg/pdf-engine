@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   Document,
   Page,
@@ -8,88 +8,90 @@ import {
   Font,
   pdf,
   Image,
-} from "@react-pdf/renderer"
-import { createTw } from "react-pdf-tailwind"
-import config from "@/tailwind.config"
-import logo from "./logo-header.png"
+} from "@react-pdf/renderer";
+import { createTw } from "react-pdf-tailwind";
+import config from "@/tailwind.config";
+import logo from "./logo-header.png";
 Font.register({
   family: "Times New Roman",
   src: "/times.ttf",
-})
+});
 Font.register({
   family: "Times New Roman Semi Bold",
   src: "/timessb.ttf",
-})
+});
+Font.register({
+  family: "Arial Bold",
+  src: "/Arial Bold.ttf",
+});
 
-
-const tw = createTw(config)
+const tw = createTw(config);
 const styles = StyleSheet.create({
   title: {
-    fontSize: "12px",
+    fontSize: "13px",
     fontWeight: "bold",
+    fontFamily: "Arial Bold",
+    textAlign: "center",
   },
   subtitle: {
-    fontSize: "8px",
+    fontSize: "11px",
+    fontFamily: "Arial Bold",
+  },
+  subtext: {
+    fontSize: "10px",
+    marginTop: "7px",
+  },
+  subhead: {
+    fontSize: "11px",
+    fontFamily: "Arial Bold",
+    width: "130px",
   },
   text: {
     fontSize: "11px",
-    fontFamily: "Times New Roman",
     height: "auto",
     paddingTop: "15px",
     lineHeight: "1.25px",
   },
-  pageNumber: {
-    position: "absolute",
-    fontSize: 11,
-    fontFamily: "Times New Roman",
-    bottom: 30,
-    left: 0,
-    right: 0,
-    textAlign: "center",
-    color: "black",
-    display: "flex",
-    flexDirection: "column",
-  },
   conditionRow: {
-      display: "flex",
-      flexDirection: "row",
-      marginBottom: 4,
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 4,
   },
   conditionNumber: {
-      fontSize: 11,
-      fontWeight: "bold",
-      fontFamily: "Times New Roman Semi Bold",
-      width: 20,
-      marginTop: 3
-   },
-  conditionText: {
-      fontSize: 11,
-      flex: 1,
+    fontSize: 11,
+    fontWeight: "bold",
+    fontFamily: "Times New Roman Semi Bold",
+    width: 20,
+    marginTop: 3,
   },
-})
+  conditionText: {
+    fontSize: 11,
+    flex: 1,
+  },
+});
 
 interface Cost {
-  label: string
-  value: number
+  label: string;
+  value: number;
 }
 
 interface props {
-  date: string
-  borrowers: string[]
-  guarantors: string[]
-  principalAmount: number
-  term: number
-  ir: number
-  ppr: number
-  ptir: number
-  ptppr: number
-  closingDate: string
-  mortgageAssignment: string
-  securityDetails: string[]
-  offerEndDate: string
-  retainer: number
-  conditions: string
-  costDetails: Cost[]
+  date: string;
+  borrowers: string[];
+  guarantors: string[];
+  principalAmount: number;
+  term: number;
+  ir: number;
+  ppr: number;
+  ptir: number;
+  ptppr: number;
+  closingDate: string;
+  mortgageAssignment: string;
+  securityDetails: string[];
+  offerEndDate: string;
+  retainer: number;
+  conditions: string;
+  costDetails: Cost[];
 }
 //
 const defaultProps = {
@@ -109,7 +111,7 @@ const defaultProps = {
   retainer: 0,
   conditions: "conditions",
   costDetails: [{ label: "Nothing", value: 0 }],
-}
+};
 
 function Pdf({
   date,
@@ -129,382 +131,199 @@ function Pdf({
   conditions,
   costDetails,
 }: props) {
+  conditions =
+    "1. 12 postdated cheques of $3000.00 to be issued in the name of Aarti Real Estate Enterprises Inc. and a bank draft of $6,000.00 in the name of Aarti Real Estate Enterprises inc.as commitment fee. 2. Rest of the terms and Schedule A will remain the same as per previous mortgage commitment and mortgage instructions dated February 06, 2024.";
+
   function handleNumber(originalNumber: string | number): string {
     let formattedNumber = new Intl.NumberFormat("en-US").format(
       originalNumber as number
-    )
+    );
     if (formattedNumber.slice(-3)[0] !== ".") {
       if (
         formattedNumber.slice(-3)[-1] !== "." &&
         formattedNumber.includes(".")
       ) {
-        formattedNumber = formattedNumber + "0"
+        formattedNumber = formattedNumber + "0";
       } else {
-        formattedNumber = formattedNumber + ".00"
+        formattedNumber = formattedNumber + ".00";
       }
     }
-    return formattedNumber
+    return formattedNumber;
   }
-
-
 
   function findMonthlyPayment() {
-    return handleNumber(
-      ((principalAmount * (ir / 100)) / (12)).toFixed(2)
-    )
-  }
-
-  let conditionIndex = 0
-
-  function handleConditionIndex() {
-    conditionIndex = conditionIndex + 1
-    return conditionIndex
+    return handleNumber(((principalAmount * (ir / 100)) / 12).toFixed(2));
   }
 
   function findTotalCost() {
-    let total = 0
+    let total = 0;
     for (let i = 0; i < costDetails.length; i++) {
-      total += costDetails[i].value
+      total += costDetails[i].value;
     }
-    return handleNumber(total)
+    return handleNumber(total);
   }
 
   function formatDateToSentence(dateString: string): string {
-    const [year, month, day] = dateString.split('-').map(Number);
-  
+    const [year, month, day] = dateString.split("-").map(Number);
+
     // Note: monthIndex is 0-based, so subtract 1 from month
     const date = new Date(year, month - 1, day);
-  
+
     const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     };
-  
-    return date.toLocaleDateString('en-US', options);
+
+    return date.toLocaleDateString("en-US", options);
   }
+
+  const conditionList = conditions
+    .split(/\n+/) // split on one or more newlines
+    .filter((line) => line.trim()); // remove empty lines
 
   return (
     <Document>
-      <Page size="LETTER" style={tw("p-4")}>
-        {/*Start of First Page*/}
-        <View style={tw("flex-auto py-12 px-20 flex-col")}>
-          <View style={tw("flex-col items-center")}>
-            <Image style={tw("h-12 mx-12")} src="/logo-header.png" />
-          </View>
-          <View style={styles.text}>
-            <View style={tw("flex-col flex-auto justify-between h-36")}>
-              <Text>Mortgage Commitment & Mortgage Instructions</Text>
-              <Text>Date: {formatDateToSentence(date)}</Text>
-              <Text>From: Aarti Mortgage Inc.</Text>
-              <Text style={tw("ml-9")}>
-                (Hereinafter referred to as the “Lender(s)” and/or “Chargee(s)”)
-              </Text>
-              <Text>To: {borrowers.join(", ")} </Text>
-              <Text style={tw("ml-9")}>
-                (Hereinafter referred to as the “Borrower(s)” and/or
-                “Chargor(s)”)
-              </Text>
-            </View>
-            <Text style={tw("mt-9 pr-4")}>
-              Based upon and subject to the accuracy furnished to us by the
-              Borrower(s)/Guarantor(s), we undertake to provide mortgage
-              financing, subject to the following terms and conditions set out
-              below which forms part of this commitment.
-            </Text>
-            <Text style={tw("mr-8")}>
-              This Loan/Commitment is non-transferable, and the benefit may not
-              be assigned to the borrower(s)/Guarantor(s), unless the chargee(s)
-              agrees to such in writing and subject to additional costs.
-            </Text>
-            <View style={tw("flex-auto border h-auto flex-col mt-4")}>
-              <View style={tw("flex-auto h-auto text-center")}>
-                <Text style={tw("w-full")}>DETAILS OF MORTGAGE LOAN</Text>
+      <Page size="LETTER" style={tw("p-4 pt-8")}>
+        <View style={styles.text}>
+          <View style={tw("flex-auto py-2 px-12 flex-col")}>
+            <Text style={styles.title}>Mortgage Renewal Letter</Text>
+            <View style={tw("flex-auto flex-row mt-4")}>
+              <View style={tw("flex-auto flex-col")}>
+                <Text style={tw("mb-4")}>DATE</Text>
+                <Text style={styles.subtitle}>RE: Property Info</Text>
               </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("border-b px-2")}>Borrower(s):</Text>
-                  <Text style={tw("px-2")}>Guarantor:</Text>
-                </View>
-                <View style={tw("w-full")}>
-                  <Text style={tw("border-b border-l px-2")}>
-                    {" "}
-                    {borrowers.join(", ")}
-                  </Text>
-                  <Text style={tw("border-l px-2")}>
-                    {" "}
-                    {guarantors.join(", ")}
-                  </Text>
-                </View>
-              </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>Loan Amount:</Text>
-                </View>
-                <View style={tw("w-full")}>
-                  <Text style={tw("border-l px-2")}>
-                    ${handleNumber(principalAmount)}
-                  </Text>
-                </View>
-              </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>Interest Rate:</Text>
-                </View>
-                <View style={tw("w-full h-full")}>
-                  <Text style={tw("border-l px-2")}>
-                    {term == 2 ? "Month 1" : "Month 1 to Month " + (term - 1)} -
-                    at greater of {handleNumber(ir)}% OR BMO bank prime rate of
-                    interest per annum, from time to time posted, plus{" "}
-                    {handleNumber(ppr)}% calculated daily and compounded and
-                    payable monthly on the interest adjustment date.
-                    <br />
-                  </Text>
-                  <Text style={tw("border-l px-2")}>
-                    {term == 2 ? "Month 2 " : "Month " + term + " "}
-                    and every month thereafter - at the greater of{" "}
-                    {handleNumber(ptir)}% OR BMO bank prime rate of interest per
-                    annum, from time to time posted, plus {handleNumber(ptppr)}%
-                    calculated daily and compounded and payable monthly on the
-                    interest adjustment date.
-                  </Text>
-                </View>
-              </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>Term:</Text>
-                </View>
-                <View style={tw("w-full")}>
-                  <Text style={tw("border-l px-2")}>
-                    {term == 1 ? "1 month" : term + " months"}
-                  </Text>
-                </View>
-              </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>Closing Date:</Text>
-                </View>
-                <View style={tw("w-full")}>
-                  <Text style={tw("border-l px-2")}>{formatDateToSentence(closingDate)}</Text>
-                </View>
-              </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>
-                    Monthly Payment (Interest Only):
-                  </Text>
-                </View>
-                <View style={tw("w-full")}>
-                  <Text style={tw("border-l px-2")}>
-                    ${findMonthlyPayment()}
-                  </Text>
-                </View>
-              </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>Purpose of Loan:</Text>
-                </View>
-                <View style={tw("w-full")}>
-                  <Text style={tw("border-l px-2")}>
-                    {mortgageAssignment} Mortgage Assignment
-                  </Text>
-                </View>
-              </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>Security Details:</Text>
-                </View>
-                <View style={tw("w-full flex flex-col")}>
-                  {securityDetails.map((value) => (
-                    <Text key={value} style={tw("border-l px-2")}>
-                      {value}
-                    </Text>
-                  ))}
-                </View>
-              </View>
-              <View style={tw("flex-auto border-t h-auto flex-row")}>
-                <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>{mortgageAssignment} Mortgage/Charge On</Text>
-                </View>
-                <View style={tw("w-full")}>
-                  <Text style={tw("border-l px-2")}>
-                    {securityDetails.length > 1
-                      ? `The above properties`
-                      : `The above property`}
-                  </Text>
-                </View>
+              <View style={tw("flex-auto flex-col mr-24")}>
+                <Text style={tw("mb-4")}>February 10, 2025</Text>
+                <Text>107-38 Water Walk Drive, Markham, Ontario L3R6L4</Text>
               </View>
             </View>
-            <Text style={tw("ml-2 mt-4 mb-0 text-lg underline")}>
-              Cost to the Borrower(s):
+            <Text style={styles.subtext}>
+              Congratulations! Your Mortgage Renewal Request is Approved! The
+              lender is prepared to provide a loan subject to the following
+              terms and conditions and their normal underwriting procedures. The
+              terms quoted are conditional on there being no outstanding Writs
+              of Execution registered against the Borrower on closing
             </Text>
-            <Text style={tw("ml-2")}>
-              All legal costs, disbursements and fees as stated in Fee Schedule
-              in connection with this mortgage required to complete this
-              transaction: Payable by the borrower to be deducted from advance.
-            </Text>
-          </View>
-          {/*Start of Second Page*/}
-          <View style={styles.text}>
-            <Text break style={tw("mt-16 mb-3 text-lg underline")}>
-              Solicitors
-            </Text>
-            <Text>TBD</Text>
-            <Text style={tw("mt-9 mb-4 underline")}>TIME</Text>
-            <Text>IN ALL MATTERS, TIME SHALL BE OF THE ESSENCE.</Text>
-            <Text style={tw("mt-5 mb-5")}>
-              This offer to finance is open for acceptance by the
-              Borrower(s)/Guarantor(s) until 5:00pm, on {formatDateToSentence(offerEndDate)}, by time
-              and date, two copies of the Mortgage Loan Commitment and its
-              schedules duly executed, shall be in our receipt together{retainer > 0 ? (
-              <>with the nonrefundable commitment fee deposit of ${handleNumber(retainer)}. : </>
-              ) : <>. </>}If the herein offer is not accepted by the aforementioned time and
-              date or offer as set forth is rendered null and void.
-            </Text>
-            <Text>
-              This Mortgage Commitment, if accepted, is valid until the Final
-              Funding Date: {formatDateToSentence(closingDate)}, after which time/date this commitment
-              will be subject to rate and fee changes, the offer shall be null
-              and void at the option of the lender.
-            </Text>
-            <Text style={tw("mt-5 mb-3 text-lg underline")}>Assignment</Text>
-            <Text>
-              Both the borrower(s) and the Lender(s) agree that the lender may
-              assign in part or in whole this loan/mortgage commitment to a
-              third-party lender.
-            </Text>
-            <Text style={tw("mt-5 mb-2 text-lg")}>
-              CONDITIONS PRECEDENT TO FUNDING
-            </Text>
-            <Text style={tw("mb-5")}>
-              This Mortgage Loan Commitment and its funding is further subject
-              to Borrower(s)/Guarantor(s) providing all particulars mentioned on
-              the next page, the property meeting our criteria as to quality and
-              location, verification and the receipt of the following by the
-              Final Funding Date in a form all to be fully satisfactory to
-              Lender(s) and their solicitor(s) and the lender can withdraw this
-              mortgage commitment at any time before the final funding.
-            </Text>
-          </View>
-        </View>
-        {/*Start of Third Page*/}
-        <View style={styles.text} break>
-          <View style={tw("flex-auto py-10 px-20 flex-col")}> 
-          {(() => {
-  const lines = []
-  let remaining = conditions
-  while (remaining.length > 0) {
-    const number = remaining.slice(0, 3)
-    const nextIndex = remaining.indexOf("\n", 3)
-    const text =
-      nextIndex !== -1
-        ? remaining.slice(3, nextIndex)
-        : remaining.slice(3)
-
-    lines.push(
-      <View key={lines.length} style={styles.conditionRow}>
-        <Text style={styles.conditionNumber}>{number}</Text>
-        <Text style={styles.conditionText}>{text.trim()}</Text>
-      </View>
-    )
-
-    if (nextIndex === -1) break
-    remaining = remaining.slice(nextIndex + 1)
-  }
-  return lines
-})()}
-
-          </View>
-        </View>
-        {/*Start of Fourth Page*/}
-        <View style={styles.text} break>
-          <View style={tw("flex-auto py-10 px-20 flex-col")}>
-            <Text>
-              ACCEPTED and DATED in the City of _______________, day of
-              ________________, 2024.
-            </Text>
-            <View style={tw("flex-auto my-10 flex-row")}>
-              <View>
-                {borrowers.map((borrower) => (
-                  <View key={borrower}>
-                    <Text>______________________________</Text>
-                    <Text style={tw("mb-8")}>Borrower(s)/Chargor(s)</Text>
-                  </View>
-                ))}
-                <Text>______________________________</Text>
-                <Text>Lender(s)</Text>
+            <View style={tw("border mt-3 mb-3 py-1 px-1 border-black")}>
+              <View style={tw("flex-auto flex-row")}>
+                <Text style={styles.subhead}>Borrower(s):</Text>
+                <Text>Siriskantharajan Vallipuranathar</Text>
               </View>
-              <View style={tw("ml-28")}>
-                {borrowers.map((borrower) => (
-                  <View key={borrower}>
-                    <Text>______________________________</Text>
-                    <Text style={tw("mb-8")}>Witness</Text>
-                  </View>
-                ))}
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Address of Property:</Text>
+                <Text>107-38 Water Walk Drive, Markham, Ontario L3R6L4</Text>
               </View>
-            </View>
-            <Text style={tw("text-lg mb-2")}>Schedule A</Text>
-            <Text>
-              The total itemized cost to the Borrower(s) and/or Chargor(s) is as
-              follows:
-            </Text>
-            <Text style={tw("mt-4")}>
-              As stated in page 1 of the Mortgage commitment and Mortgage
-              Instructions where it states COSTS TO THE BORROWER(S) here is the
-              breakdown of costs, including legal, Lenders(s) fees and
-              lender(s)’ administrative fees:
-            </Text>
-            {costDetails.map((cost) => (
-              <View key={cost.label} style={tw("flex-auto flex-row mt-3 ")}>
-                <Text style={tw("w-5/6")}>{cost.label}</Text>
-                <Text>
-                  {cost.value == 0 ? "NIL" : "$" + handleNumber(cost.value)}
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Type:</Text>
+                <Text>First Mortgage</Text>
+              </View>
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Mortgage to Advance:</Text>
+                <Text>$400,000.00</Text>
+              </View>
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Interest Rate:</Text>
+                <Text style={tw("w-[70%]")}>
+                  Month 1 to Month 12 - at greater of 9.00% OR BMO bank prime
+                  rate of interest per annum, from time to time posted, plus
+                  3.80% calculated daily and compounded and payable monthly on
+                  the interest adjustment date.{"\n"}Month 13 and every month
+                  thereafter - at the greater of 24% or BMO bank prime rate of
+                  interest per annum, from time to time posted, plus 18.80%
+                  calculated daily and compounded and payable monthly on the
+                  interest adjustment date.
                 </Text>
               </View>
-            ))}
-            <View style={tw("flex-auto flex-row mt-16")}>
-              <Text style={tw("w-5/6")}>TOTAL</Text>
-              <Text>
-                {findTotalCost() == "0.00" ? "NIL" : "$" + findTotalCost()}
-              </Text>
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Monthly Payment:</Text>
+                <Text>$3,000.00</Text>
+              </View>
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Prepayment Privilege:</Text>
+                <Text>Closed</Text>
+              </View>
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Term:</Text>
+                <Text>13 Months</Text>
+              </View>
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Commitment Fee:</Text>
+                <Text>1.50% ($6,000.00)</Text>
+              </View>
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Admin Fee:</Text>
+                <Text>Waived</Text>
+              </View>
+              <View style={tw("flex-auto flex-row mt-1")}>
+                <Text style={styles.subhead}>Renewal Date:</Text>
+                <Text>February 12, 2025</Text>
+              </View>
             </View>
-            <Text style={tw("mt-5")}>
-              ** Note additional cost: Lender, Legal and Disbursements Cost to
-              be added and provided by solicitor at time of funding and deducted
-              from the proceeds of the advance.
+            <Text style={styles.subtitle}>Conditions</Text>
+            <View style={tw("flex flex-col px-8")}>
+              {conditions
+                .split(/\n?\d+\.\s+/) // Split by number patterns like "1. ", "2. "
+                .filter((c) => c.trim() !== "")
+                .map((cond, idx) => (
+                  <View
+                    key={idx}
+                    style={{ flexDirection: "row", marginBottom: 4 }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 10,
+                        minWidth: 22, // ensures space between number and content
+                      }}
+                    >
+                      {`${idx + 1}.`}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 10,
+                        flex: 1,
+                      }}
+                    >
+                      {cond.trim()}
+                    </Text>
+                  </View>
+                ))}
+            </View>
+            <Text style={tw("text-[10px] mt-2")}>
+              All costs are and fees are approximate and can change after
+              underwriting the deal.
             </Text>
-            <View style={tw("flex-auto my-10 flex-row")}>
+            <View style={tw("flex-auto my-2 flex-row")}>
               <View>
                 {borrowers.map((borrower) => (
-                  <View key={borrower}>
-                    <Text>______________________________</Text>
-                    <Text style={tw("mb-8")}>Borrower(s)/Chargor(s)</Text>
+                  <View
+                    key={borrower}
+                    style={tw("text-center flex justify-center")}
+                  >
+                    <Text style={tw("mt-4")}>_______________</Text>
+                    <Text style={styles.subtitle}>Borrower</Text>
                   </View>
                 ))}
+                <Text style={tw("mt-12")}>_______________</Text>
+                <Text style={styles.subtitle}>Lender</Text>
               </View>
-              <View style={tw("ml-28")}>
-                {borrowers.map((borrower) => (
-                  <View key={borrower}>
-                    <Text>______________________________</Text>
-                    <Text style={tw("mb-8")}>Witness</Text>
+              <View style={tw("ml-[330px] mt-12")}>
+                  <View>
+                    <Text>_______________</Text>
+                    <Text style={tw("mb-8")}>Date</Text>
                   </View>
-                ))}
+                  <View>
+                    <Text>_______________</Text>
+                    <Text style={tw("mb-8")}>Date</Text>
+                  </View>
               </View>
             </View>
           </View>
         </View>
-        <Text
-          style={styles.pageNumber}
-          render={({ pageNumber, totalPages }) =>
-            `Mortgage Commitment
-            Page ${pageNumber} of ${totalPages}`
-          }
-          fixed
-        />
       </Page>
     </Document>
-  )
+  );
 }
 
-Pdf.defaultProps = defaultProps
-export default Pdf
+Pdf.defaultProps = defaultProps;
+export default Pdf;
