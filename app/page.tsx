@@ -95,7 +95,7 @@ export default function Home() {
       Guarantors: guarantors.map((g: any) => g.Name),
       Principal: deal.Principal,
       Term: deal.Term,
-      IR: deal.IR,
+      IR: deal.Interest_Rate,
       Prime_Plus_Rate: deal.Prime_Plus_Rate,
       Extension_IR: deal.Extension_IR,
       Extension_Prime_Plus_Rate: deal.Extension_Prime_Plus_Rate,
