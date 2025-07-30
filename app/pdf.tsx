@@ -362,7 +362,7 @@ function Pdf({
               This offer to finance is open for acceptance by the
               Borrower(s)/Guarantor(s) until 5:00pm, on {formatDateToSentence(offerEndDate)}, by time
               and date, two copies of the Mortgage Loan Commitment and its
-              schedules duly executed, shall be in our receipt together{retainer > 0 ? (
+              schedules duly executed, shall be in our receipt{retainer > 0 ? (
               <>with the nonrefundable commitment fee deposit of ${handleNumber(retainer)}. : </>
               ) : <>. </>}If the herein offer is not accepted by the aforementioned time and
               date or offer as set forth is rendered null and void.
