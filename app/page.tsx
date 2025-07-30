@@ -12,6 +12,7 @@ type CommitmentDetails = {
   Closing_Date: string
   Offer_End_Date: string
   Assignment: string
+  Signature_Fields: number,
   Cost_Details: { label: string; value: number }[]
   Security_Details: string[]
   Retainer: number
@@ -32,13 +33,13 @@ const PDFViewer = dynamic(
   }
 )
 
-
 const options = {
   method: "GET",
   headers: {
     "xc-token": process.env.NEXT_PUBLIC_XC_TOKEN,
   },
 }
+
 
 export default function Home() {
   const searchParams = useSearchParams()
@@ -104,6 +105,7 @@ export default function Home() {
       Closing_Date: deal.Closing_Date,
       Offer_End_Date: deal.Offer_End_Date,
       Assignment: deal.Assignment,
+      Signature_Fields: deal.Signature_Fields,
       Cost_Details: costDetails,
       Security_Details: securityDetails.map((s: any) => s.Name),
       Retainer: deal.Retainer,
@@ -135,6 +137,7 @@ export default function Home() {
             closingDate={commitmentDetails.Closing_Date}
             offerEndDate={commitmentDetails.Offer_End_Date}
             mortgageAssignment={commitmentDetails.Assignment}
+            sigFields={commitmentDetails.Signature_Fields}
             costDetails={commitmentDetails.Cost_Details}
             securityDetails={commitmentDetails.Security_Details}
             retainer={commitmentDetails.Retainer}

@@ -21,7 +21,6 @@ Font.register({
   src: "/timessb.ttf",
 })
 
-
 const tw = createTw(config)
 const styles = StyleSheet.create({
   title: {
@@ -51,20 +50,20 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   conditionRow: {
-      display: "flex",
-      flexDirection: "row",
-      marginBottom: 4,
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 4,
   },
   conditionNumber: {
-      fontSize: 11,
-      fontWeight: "bold",
-      fontFamily: "Times New Roman Semi Bold",
-      width: 20,
-      marginTop: 3
-   },
+    fontSize: 11,
+    fontWeight: "bold",
+    fontFamily: "Times New Roman Semi Bold",
+    width: 20,
+    marginTop: 3,
+  },
   conditionText: {
-      fontSize: 11,
-      flex: 1,
+    fontSize: 11,
+    flex: 1,
   },
 })
 
@@ -84,6 +83,7 @@ interface props {
   ptir: number
   ptppr: number
   closingDate: string
+  sigFields: number
   mortgageAssignment: string
   securityDetails: string[]
   offerEndDate: string
@@ -103,6 +103,7 @@ const defaultProps = {
   ptir: 0,
   ptppr: 0,
   closingDate: "May 13 2024",
+  sigFields: 2,
   mortgageAssignment: "N/A",
   securityDetails: ["124 Example St, L6P 2F9 ON"],
   offerEndDate: "May 12 2024",
@@ -122,6 +123,7 @@ function Pdf({
   ptir,
   ptppr,
   closingDate,
+  sigFields,
   mortgageAssignment,
   securityDetails,
   offerEndDate,
@@ -146,18 +148,17 @@ function Pdf({
     return formattedNumber
   }
 
-  function getYearFromDate(dateField: string | Date | null | undefined): string | null {
+  function getYearFromDate(
+    dateField: string | Date | null | undefined
+  ): string | null {
     if (!dateField) return null
-      const date = new Date(dateField)
+    const date = new Date(dateField)
     if (isNaN(date.getTime())) return null
     return date.getFullYear().toString()
   }
 
-
   function findMonthlyPayment() {
-    return handleNumber(
-      ((principalAmount * (ir / 100)) / (12)).toFixed(2)
-    )
+    return handleNumber(((principalAmount * (ir / 100)) / 12).toFixed(2))
   }
 
   let conditionIndex = 0
@@ -176,18 +177,18 @@ function Pdf({
   }
 
   function formatDateToSentence(dateString: string): string {
-    const [year, month, day] = dateString.split('-').map(Number);
-  
+    const [year, month, day] = dateString.split("-").map(Number)
+
     // Note: monthIndex is 0-based, so subtract 1 from month
-    const date = new Date(year, month - 1, day);
-  
+    const date = new Date(year, month - 1, day)
+
     const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    };
-  
-    return date.toLocaleDateString('en-US', options);
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+
+    return date.toLocaleDateString("en-US", options)
   }
 
   return (
@@ -291,7 +292,9 @@ function Pdf({
                   <Text style={tw("px-2")}>Closing Date:</Text>
                 </View>
                 <View style={tw("w-full")}>
-                  <Text style={tw("border-l px-2")}>{formatDateToSentence(closingDate)}</Text>
+                  <Text style={tw("border-l px-2")}>
+                    {formatDateToSentence(closingDate)}
+                  </Text>
                 </View>
               </View>
               <View style={tw("flex-auto border-t h-auto flex-row")}>
@@ -330,7 +333,9 @@ function Pdf({
               </View>
               <View style={tw("flex-auto border-t h-auto flex-row")}>
                 <View style={tw("w-4/6")}>
-                  <Text style={tw("px-2")}>{mortgageAssignment} Mortgage/Charge On</Text>
+                  <Text style={tw("px-2")}>
+                    {mortgageAssignment} Mortgage/Charge On
+                  </Text>
                 </View>
                 <View style={tw("w-full")}>
                   <Text style={tw("border-l px-2")}>
@@ -360,18 +365,26 @@ function Pdf({
             <Text>IN ALL MATTERS, TIME SHALL BE OF THE ESSENCE.</Text>
             <Text style={tw("mt-5 mb-5")}>
               This offer to finance is open for acceptance by the
-              Borrower(s)/Guarantor(s) until 5:00pm, on {formatDateToSentence(offerEndDate)}, by time
-              and date, two copies of the Mortgage Loan Commitment and its
-              schedules duly executed, shall be in our receipt{retainer > 0 ? (
-              <>with the nonrefundable commitment fee deposit of ${handleNumber(retainer)}. : </>
-              ) : <>. </>}If the herein offer is not accepted by the aforementioned time and
+              Borrower(s)/Guarantor(s) until 5:00pm, on{" "}
+              {formatDateToSentence(offerEndDate)}, by time and date, two copies
+              of the Mortgage Loan Commitment and its schedules duly executed,
+              shall be in our receipt
+              {retainer > 0 ? (
+                <>
+                  with the nonrefundable commitment fee deposit of $
+                  {handleNumber(retainer)}. :{" "}
+                </>
+              ) : (
+                <>. </>
+              )}
+              If the herein offer is not accepted by the aforementioned time and
               date or offer as set forth is rendered null and void.
             </Text>
             <Text>
               This Mortgage Commitment, if accepted, is valid until the Final
-              Funding Date: {formatDateToSentence(closingDate)}, after which time/date this commitment
-              will be subject to rate and fee changes, the offer shall be null
-              and void at the option of the lender.
+              Funding Date: {formatDateToSentence(closingDate)}, after which
+              time/date this commitment will be subject to rate and fee changes,
+              the offer shall be null and void at the option of the lender.
             </Text>
             <Text style={tw("mt-5 mb-3 text-lg underline")}>Assignment</Text>
             <Text>
@@ -395,31 +408,30 @@ function Pdf({
         </View>
         {/*Start of Third Page*/}
         <View style={styles.text} break>
-          <View style={tw("flex-auto py-10 px-20 flex-col")}> 
-          {(() => {
-  const lines = []
-  let remaining = conditions
-  while (remaining.length > 0) {
-    const number = remaining.slice(0, 3)
-    const nextIndex = remaining.indexOf("\n", 3)
-    const text =
-      nextIndex !== -1
-        ? remaining.slice(3, nextIndex)
-        : remaining.slice(3)
+          <View style={tw("flex-auto py-10 px-20 flex-col")}>
+            {(() => {
+              const lines = []
+              let remaining = conditions
+              while (remaining.length > 0) {
+                const number = remaining.slice(0, 3)
+                const nextIndex = remaining.indexOf("\n", 3)
+                const text =
+                  nextIndex !== -1
+                    ? remaining.slice(3, nextIndex)
+                    : remaining.slice(3)
 
-    lines.push(
-      <View key={lines.length} style={styles.conditionRow}>
-        <Text style={styles.conditionNumber}>{number}</Text>
-        <Text style={styles.conditionText}>{text.trim()}</Text>
-      </View>
-    )
+                lines.push(
+                  <View key={lines.length} style={styles.conditionRow}>
+                    <Text style={styles.conditionNumber}>{number}</Text>
+                    <Text style={styles.conditionText}>{text.trim()}</Text>
+                  </View>
+                )
 
-    if (nextIndex === -1) break
-    remaining = remaining.slice(nextIndex + 1)
-  }
-  return lines
-})()}
-
+                if (nextIndex === -1) break
+                remaining = remaining.slice(nextIndex + 1)
+              }
+              return lines
+            })()}
           </View>
         </View>
         {/*Start of Fourth Page*/}
@@ -431,20 +443,20 @@ function Pdf({
             </Text>
             <View style={tw("flex-auto my-10 flex-row")}>
               <View>
-                {borrowers.map((borrower) => (
-                  <View key={borrower}>
+                {Array.from({ length: sigFields }).map((_, index) => (
+                  <View key={index}>
                     <Text>______________________________</Text>
-                    <Text style={tw("mb-8")}>Borrower(s)/Chargor(s)</Text>
+                    <Text style={{ marginBottom: 32 }}>Borrower(s)/Chargor(s)</Text>
                   </View>
                 ))}
                 <Text>______________________________</Text>
                 <Text>Lender(s)</Text>
               </View>
               <View style={tw("ml-28")}>
-                {borrowers.map((borrower) => (
-                  <View key={borrower}>
+                {Array.from({ length: sigFields }).map((_, index) => (
+                  <View key={index}>
                     <Text>______________________________</Text>
-                    <Text style={tw("mb-8")}>Witness</Text>
+                    <Text style={{ marginBottom: 32 }}>Witness</Text>
                   </View>
                 ))}
               </View>
@@ -481,18 +493,18 @@ function Pdf({
             </Text>
             <View style={tw("flex-auto my-10 flex-row")}>
               <View>
-                {borrowers.map((borrower) => (
-                  <View key={borrower}>
+                {Array.from({ length: sigFields }).map((_, index) => (
+                  <View key={index}>
                     <Text>______________________________</Text>
-                    <Text style={tw("mb-8")}>Borrower(s)/Chargor(s)</Text>
+                    <Text style={{ marginBottom: 32 }}>Borrower(s)/Chargor(s)</Text>
                   </View>
                 ))}
               </View>
               <View style={tw("ml-28")}>
-                {borrowers.map((borrower) => (
-                  <View key={borrower}>
+                {Array.from({ length: sigFields }).map((_, index) => (
+                  <View key={index}>
                     <Text>______________________________</Text>
-                    <Text style={tw("mb-8")}>Witness</Text>
+                    <Text style={{ marginBottom: 32 }}>Witness</Text>
                   </View>
                 ))}
               </View>
