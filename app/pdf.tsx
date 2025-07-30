@@ -146,6 +146,12 @@ function Pdf({
     return formattedNumber
   }
 
+  function getYearFromDate(dateField: string | Date | null | undefined): string | null {
+    if (!dateField) return null
+      const date = new Date(dateField)
+    if (isNaN(date.getTime())) return null
+    return date.getFullYear().toString()
+  }
 
 
   function findMonthlyPayment() {
@@ -421,7 +427,7 @@ function Pdf({
           <View style={tw("flex-auto py-10 px-20 flex-col")}>
             <Text>
               ACCEPTED and DATED in the City of _______________, day of
-              ________________, 2024.
+              ________________, {getYearFromDate(date)}.
             </Text>
             <View style={tw("flex-auto my-10 flex-row")}>
               <View>
