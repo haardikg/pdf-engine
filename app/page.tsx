@@ -38,7 +38,7 @@ type CommitmentDetails = {
 const options = {
   method: "GET",
   headers: {
-    "xc-token": "process.env.NEXT_PUBLIC_XC_TOKEN",
+    "xc-token": process.env.NEXT_PUBLIC_XC_TOKEN!,
   },
 }
 
