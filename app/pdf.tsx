@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import {
   Document,
   Page,
@@ -12,16 +12,19 @@ import {
 import { createTw } from "react-pdf-tailwind"
 import config from "@/tailwind.config"
 import logo from "./logo-header.png"
+
 Font.register({
   family: "Times New Roman",
   src: "/times.ttf",
 })
+
 Font.register({
   family: "Times New Roman Semi Bold",
   src: "/timessb.ttf",
 })
 
 const tw = createTw(config)
+
 const styles = StyleSheet.create({
   title: {
     fontSize: "12px",
@@ -72,11 +75,12 @@ interface Cost {
   value: number
 }
 
-interface props {
+interface Props {
   date: string
   borrowers: string[]
   guarantors: string[]
   principalAmount: number
+  cocharge: number | null
   term: number
   ir: number
   ppr: number
@@ -90,13 +94,15 @@ interface props {
   retainer: number
   conditions: string
   costDetails: Cost[]
+  coLender?: string | null // ✅ ADDED
 }
-//
-const defaultProps = {
+
+const defaultProps: Props = {
   date: "May 11 2024",
   borrowers: ["N/A"],
   guarantors: ["N/A"],
   principalAmount: 0,
+  cocharge: null,
   term: 12,
   ir: 0,
   ppr: 0,
@@ -110,6 +116,7 @@ const defaultProps = {
   retainer: 0,
   conditions: "conditions",
   costDetails: [{ label: "Nothing", value: 0 }],
+  coLender: null, // ✅ ADDED
 }
 
 function Pdf({
@@ -117,6 +124,7 @@ function Pdf({
   borrowers,
   guarantors,
   principalAmount,
+  cocharge,
   term,
   ir,
   ppr,
@@ -130,7 +138,8 @@ function Pdf({
   retainer,
   conditions,
   costDetails,
-}: props) {
+  coLender, // ✅ DESTRUCTURED
+}: Props) {
   function handleNumber(originalNumber: string | number): string {
     let formattedNumber = new Intl.NumberFormat("en-US").format(
       originalNumber as number
@@ -157,8 +166,8 @@ function Pdf({
     return date.getFullYear().toString()
   }
 
-  function findMonthlyPayment() {
-    return handleNumber(((principalAmount * (ir / 100)) / 12).toFixed(2))
+  function findMonthlyPayment(amount) {
+    return handleNumber(((amount * (ir / 100)) / 12).toFixed(2))
   }
 
   let conditionIndex = 0
@@ -203,7 +212,11 @@ function Pdf({
             <View style={tw("flex-col flex-auto justify-between h-36")}>
               <Text>Mortgage Commitment & Mortgage Instructions</Text>
               <Text>Date: {formatDateToSentence(date)}</Text>
-              <Text>From: Aarti Mortgage Inc.</Text>
+              <Text>
+                From: Aarti Mortgage Inc.
+                {coLender ? ` and ${coLender}` : ""}
+              </Text>
+
               <Text style={tw("ml-9")}>
                 (Hereinafter referred to as the “Lender(s)” and/or “Chargee(s)”)
               </Text>
@@ -250,10 +263,13 @@ function Pdf({
                 </View>
                 <View style={tw("w-full")}>
                   <Text style={tw("border-l px-2")}>
-                    ${handleNumber(principalAmount)}
+                  {coLender && cocharge !== null
+                  ? `$${handleNumber(principalAmount + cocharge)} ($${handleNumber(principalAmount)} Aarti Mortgage Inc. and $${handleNumber(cocharge)} ${coLender})`
+                  : `$${handleNumber(principalAmount)}`}
                   </Text>
                 </View>
               </View>
+
               <View style={tw("flex-auto border-t h-auto flex-row")}>
                 <View style={tw("w-4/6")}>
                   <Text style={tw("px-2")}>Interest Rate:</Text>
@@ -305,7 +321,9 @@ function Pdf({
                 </View>
                 <View style={tw("w-full")}>
                   <Text style={tw("border-l px-2")}>
-                    ${findMonthlyPayment()}
+                    {coLender && cocharge !== null
+                    ? `$${findMonthlyPayment(principalAmount + cocharge)} ($${findMonthlyPayment(principalAmount)} Aarti Mortgage Inc. and $${findMonthlyPayment(cocharge)} ${coLender})`
+      : `              $${findMonthlyPayment(principalAmount)}`}
                   </Text>
                 </View>
               </View>
